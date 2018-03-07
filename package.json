@@ -26,5 +26,8 @@
   },
   "bin": {
     "floss": "bin/floss"
+  },
+  "scripts": {
+    "prepare": "tsc"
   }
 }
