@@ -1,0 +1,28 @@
+{
+  "name": "floss",
+  "version": "0.0.1",
+  "description": "project structure checks for open source projects",
+  "keywords": [
+    "open",
+    "source"
+  ],
+  "homepage": "https://github.com/chbrown/floss",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chbrown/floss.git"
+  },
+  "license": "MIT",
+  "author": "Christopher Brown <io@henrian.com> (http://henrian.com)",
+  "dependencies": {
+    "async": "*",
+    "chalk": "*",
+    "rimraf": "*"
+  },
+  "devDependencies": {
+    "declarations": "*",
+    "typescript": "*"
+  },
+  "bin": {
+    "floss": "bin/floss"
+  }
+}

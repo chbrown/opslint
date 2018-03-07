@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES5"
+  },
+  "files": [
+    "node_modules/declarations/async/async.d.ts",
+    "node_modules/declarations/es6-shim/es6-shim.d.ts",
+    "node_modules/declarations/chalk/chalk.d.ts",
+    "node_modules/declarations/node/node.d.ts",
+    "node_modules/declarations/rimraf/rimraf.d.ts",
+    "bin/floss.ts",
+    "gaps/index.ts",
+    "gaps/readme.ts",
+    "gaps/type-declarations.ts",
+    "index.ts"
+  ]
+}
