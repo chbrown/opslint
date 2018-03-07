@@ -14,13 +14,15 @@
   "license": "MIT",
   "author": "Christopher Brown <io@henrian.com> (http://henrian.com)",
   "dependencies": {
-    "async": "*",
-    "chalk": "*",
-    "rimraf": "*"
+    "async": "^2.6.0",
+    "chalk": "^2.3.2",
+    "rimraf": "^2.6.2"
   },
   "devDependencies": {
-    "declarations": "*",
-    "typescript": "*"
+    "@types/async": "^2.0.47",
+    "@types/node": "^9.4.6",
+    "@types/rimraf": "^2.0.2",
+    "typescript": "^2.7.2"
   },
   "bin": {
     "floss": "bin/floss"
