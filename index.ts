@@ -1,12 +1,12 @@
 import * as async from 'async';
-import * as chalk from 'chalk';
+import chalk from 'chalk';
 
 import {Gap} from './gaps/index';
 
 // ✓ ✔ ✗ ✘ ⟁ ⚠
 
 export function checkAll(gaps: Gap[], callback: (error?: Error) => void) {
-  async.eachSeries<Gap>(gaps, (gap, callback) => {
+  async.eachSeries(gaps, (gap, callback) => {
     console.log(gap.name);
     gap.check((error, messages) => {
       if (error) return callback(error);
@@ -24,7 +24,7 @@ export function checkAll(gaps: Gap[], callback: (error?: Error) => void) {
 }
 
 export function fixAll(gaps: Gap[], callback: (error?: Error) => void) {
-  async.eachSeries<Gap>(gaps, (gap, callback) => {
+  async.eachSeries(gaps, (gap, callback) => {
     console.log(gap.name);
     gap.fix((error, messages) => {
       if (error) return callback(error);
