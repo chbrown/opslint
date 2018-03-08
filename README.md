@@ -1,6 +1,6 @@
-# floss
+# opslint
 
-[![npm version](https://badge.fury.io/js/floss.svg)](https://www.npmjs.com/package/floss)
+[![npm version](https://badge.fury.io/js/opslint.svg)](https://www.npmjs.com/package/opslint)
 
 
 ## License

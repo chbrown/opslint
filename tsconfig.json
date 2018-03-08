@@ -4,7 +4,7 @@
     "target": "ES5"
   },
   "files": [
-    "bin/floss.ts",
+    "bin/opslint.ts",
     "gaps/index.ts",
     "gaps/readme.ts",
     "gaps/type-declarations.ts",
