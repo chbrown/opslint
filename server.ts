@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 
-import {checkAll, fixAll} from '../index';
+import {checkAll, fixAll} from '.';
 
-import Readme from '../gaps/readme';
-import TypeDeclarations from '../gaps/type-declarations';
+import Readme from './gaps/readme';
+import TypeDeclarations from './gaps/type-declarations';
 
 const Gaps = [
   Readme,
   TypeDeclarations,
 ];
 
-function main() {
+export function main() {
   let filepath = process.cwd();
   let fix = process.argv.indexOf('--fix') > -1;
 
