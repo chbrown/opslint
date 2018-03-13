@@ -1,37 +1,37 @@
-import * as async from 'async';
-import chalk from 'chalk';
+import * as async from 'async'
+import chalk from 'chalk'
 
-import {Gap} from './gaps/index';
+import {Gap} from './gaps/index'
 
 // ✓ ✔ ✗ ✘ ⟁ ⚠
 
 export function checkAll(gaps: Gap[], callback: (error?: Error) => void) {
   async.eachSeries(gaps, (gap, callback) => {
-    console.log(gap.name);
+    console.log(gap.name)
     gap.check((error, messages) => {
-      if (error) return callback(error);
+      if (error) return callback(error)
       if (messages.length > 0) {
         messages.forEach(message => {
           console.log(chalk.bold.red(`  ✗ ${message}`))
-        });
+        })
       }
       else {
         console.log(chalk.bold.green(`  ✓ ${gap.description}`))
       }
-      callback();
-    });
-  }, callback);
+      callback()
+    })
+  }, callback)
 }
 
 export function fixAll(gaps: Gap[], callback: (error?: Error) => void) {
   async.eachSeries(gaps, (gap, callback) => {
-    console.log(gap.name);
+    console.log(gap.name)
     gap.fix((error, messages) => {
-      if (error) return callback(error);
+      if (error) return callback(error)
       messages.forEach(message => {
         console.log(chalk.bold.yellow(`  ⚠ ${message}`))
-      });
-      callback();
-    });
-  }, callback);
+      })
+      callback()
+    })
+  }, callback)
 }
