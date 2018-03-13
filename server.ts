@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import * as program from 'commander'
 
 import {checkAll, fixAll} from '.'
 
@@ -11,14 +12,19 @@ const Gaps = [
 ]
 
 export function main() {
+  const {version} = require('./package')
+  program
+    .version(version, '-v, --version')
+    .option('--fix', 'Apply fixes automatically')
+    .parse(process.argv)
+
   const filepath = process.cwd()
-  const fix = process.argv.indexOf('--fix') > -1
 
   const gaps = Gaps.map(Gap => new Gap(filepath))
   checkAll(gaps, error => {
     if (error) throw error
 
-    if (fix) {
+    if (program.fix) {
       fixAll(gaps, error => {
         if (error) throw error
 
