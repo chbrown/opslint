@@ -1,5 +1,5 @@
 import {join} from 'path';
-import {exists, existsSync, readFile, writeFile} from 'fs';
+import {exists, existsSync, writeFile} from 'fs';
 import {Gap, GapCallback, readOptionalFile} from './index';
 import * as rimraf from 'rimraf';
 
@@ -7,23 +7,25 @@ const DefinitelyTyped_regExp = /DefinitelyTyped\/(.+\.d\.ts)/;
 const node_modules_regExp = /node_modules\/(.+\.d\.ts)/;
 
 function updateTSConfig(filepath: string,
-                        files: string[],
+                        additionalFiles: string[],
                         callback: (error: Error, messages?: string[]) => void) {
-  var messages: string[] = [];
-  readOptionalFile(filepath, '{}', (error, data, missing) => {
+  const messages: string[] = [];
+  readOptionalFile(filepath, '{}', (error, originalData, missing) => {
     if (error) return callback(error);
     if (missing) {
       messages.push(`creating ${filepath}`);
     }
 
-    var tsconfig = JSON.parse(data);
-    messages.push(`adding ${files.length} new files to tsconfig`);
-    tsconfig.files = files.concat(tsconfig.files || []);
-    data = JSON.stringify(tsconfig, null, '  ');
-    writeFile(filepath, data + '\n', {encoding: 'utf8'}, error => {
+    messages.push(`adding ${additionalFiles.length} new files to tsconfig`);
+
+    const originalTSConfig = JSON.parse(originalData);
+    const files = [...additionalFiles, ...(originalTSConfig.files || [])];
+    const updatedTSConfig = {...originalTSConfig, files}
+    const updatedData = JSON.stringify(updatedTSConfig, null, '  ');
+    writeFile(filepath, `${updatedData}\n`, {encoding: 'utf8'}, error => {
       if (error) return callback(error);
 
-      messages.push(`wrote updates to tsconfig.json`);
+      messages.push('wrote updates to tsconfig.json');
       callback(null, messages);
     });
   });
@@ -33,7 +35,7 @@ export default class TypeDeclarations extends Gap {
   name = 'type_declarations';
   description = 'type_declarations does not exist';
   check(callback: GapCallback) {
-    var messages: string[] = [];
+    const messages: string[] = [];
     exists(join(this.filepath, 'type_declarations'), exists => {
       if (exists) {
         messages.push('type_declarations exists');
@@ -46,21 +48,21 @@ export default class TypeDeclarations extends Gap {
   2. replace all triple-slash DefinitelyTyped/ references
   */
   fix(callback: GapCallback) {
-    var messages: string[] = [];
+    const messages: string[] = [];
     readOptionalFile(join(this.filepath, 'type_declarations', 'index.d.ts'), '', (error, data, missing) => {
       if (error) return callback(error);
       if (missing) {
         messages.push('type_declarations/index.d.ts does not exist');
       }
 
-      var lines = data.split('\n');
+      const lines = data.split('\n');
 
       // transform lines like:
       //   '/// <reference path="DefinitelyTyped/node/node.d.ts" />'
       // to strings:
       //   'node_modules/declarations/node/node.d.ts'
-      var DefinitelyTyped = lines.filter(line => DefinitelyTyped_regExp.test(line)).map(line => {
-        var m = line.match(DefinitelyTyped_regExp);
+      const DefinitelyTyped = lines.filter(line => DefinitelyTyped_regExp.test(line)).map(line => {
+        const m = line.match(DefinitelyTyped_regExp);
         return `node_modules/declarations/${m[1]}`;
       });
 
@@ -68,21 +70,21 @@ export default class TypeDeclarations extends Gap {
       //   '/// <reference path="../node_modules/loge/loge.d.ts" />'
       // to strings:
       //   'node_modules/loge/loge.d.ts'
-      var node_modules = lines.filter(line => node_modules_regExp.test(line)).map(line => {
-        var m = line.match(node_modules_regExp);
+      const node_modules = lines.filter(line => node_modules_regExp.test(line)).map(line => {
+        const m = line.match(node_modules_regExp);
         return `node_modules/${m[1]}`;
       });
 
-      var additional_files = [...DefinitelyTyped, ...node_modules];
+      const additional_files = [...DefinitelyTyped, ...node_modules];
 
-      var other_lines = lines.filter(line => !node_modules_regExp.test(line) &&
+      const other_lines = lines.filter(line => !node_modules_regExp.test(line) &&
                                              !DefinitelyTyped_regExp.test(line) &&
                                              !/^\s*$/.test(line));
 
-      var shims_filepath = join(this.filepath, 'shims.d.ts')
+      const shims_filepath = join(this.filepath, 'shims.d.ts')
       if (other_lines.length > 0) {
         additional_files.push('shims.d.ts');
-        var shims_exist = existsSync(shims_filepath);
+        const shims_exist = existsSync(shims_filepath);
         if (shims_exist) {
           return callback(new Error('shims.d.ts already exists'));
         }

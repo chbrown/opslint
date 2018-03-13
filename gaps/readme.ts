@@ -1,5 +1,5 @@
 import {join} from 'path';
-import {existsSync, readFile, writeFile} from 'fs';
+import {writeFile} from 'fs';
 import {Gap, GapCallback, readOptionalFile} from './index';
 
 const licenseSectionRegExp = /\n#+\s*License/i;
@@ -12,7 +12,7 @@ export default class Readme extends Gap {
     return join(this.filepath, 'README.md');
   }
   check(callback: GapCallback) {
-    var messages: string[] = [];
+    const messages: string[] = [];
     readOptionalFile(this.readme_filepath, '', (error, data, missing) => {
       if (error) return callback(error);
       if (missing) {
@@ -30,12 +30,13 @@ export default class Readme extends Gap {
     });
   }
   fix(callback: GapCallback) {
-    var messages: string[] = [];
-    readOptionalFile(this.readme_filepath, '', (error, data, missing) => {
+    const messages: string[] = [];
+    readOptionalFile(this.readme_filepath, '', (error, fileData, missing) => {
       if (error) return callback(error);
       if (missing) {
         messages.push('Creating README.md');
       }
+      let data = fileData;
 
       // stop if nothing needs changing
       if (correctUrlRegExp.test(data) && licenseSectionRegExp.test(data)) {
@@ -44,7 +45,7 @@ export default class Readme extends Gap {
       }
 
       // look for [MIT License]() Markdown-syntax link
-      var link_match = data.match(/\[MIT Licensed\]\(([^)]+)\)/i);
+      const link_match = data.match(/\[MIT Licensed\]\(([^)]+)\)/i);
       if (link_match) {
         data = data.replace(link_match[1], 'http://chbrown.github.io/licenses/MIT/');
         messages.push('Replacing existing URL');

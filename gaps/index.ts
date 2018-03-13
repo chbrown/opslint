@@ -3,9 +3,7 @@ import {readFile} from 'fs';
 /**
 Failed checks are handled differently from errors.
 */
-export interface GapCallback {
-  (error: Error, messages?: string[]): void;
-}
+export type GapCallback = (error: Error, messages?: string[]) => void;
 
 export abstract class Gap {
   // abstract
@@ -19,8 +17,9 @@ export abstract class Gap {
 export function readOptionalFile(filepath: string,
                                  defaultData: string,
                                  callback: (error: Error, data?: string, missing?: boolean) => void) {
-  readFile(filepath, {encoding: 'utf8'}, (error, data) => {
-    var missing = false;
+  readFile(filepath, {encoding: 'utf8'}, (error, fileData) => {
+    let missing = false;
+    let data = fileData;
     if (error) {
       if (error.code === 'ENOENT') {
         // swallow missing file error

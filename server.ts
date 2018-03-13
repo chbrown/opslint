@@ -11,10 +11,10 @@ const Gaps = [
 ];
 
 export function main() {
-  let filepath = process.cwd();
-  let fix = process.argv.indexOf('--fix') > -1;
+  const filepath = process.cwd();
+  const fix = process.argv.indexOf('--fix') > -1;
 
-  let gaps = Gaps.map(Gap => new Gap(filepath));
+  const gaps = Gaps.map(Gap => new Gap(filepath));
   checkAll(gaps, error => {
     if (error) throw error;
 
