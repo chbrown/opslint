@@ -1,6 +1,6 @@
 {
   "name": "opslint",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "project structure checks for open source projects",
   "keywords": [
     "open",
