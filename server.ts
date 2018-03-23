@@ -3,10 +3,10 @@ import * as program from 'commander'
 
 import {checkAll, fixAll} from '.'
 
-import Readme from './gaps/readme'
-import TypeDeclarations from './gaps/type-declarations'
+import Readme from './rules/readme'
+import TypeDeclarations from './rules/type-declarations'
 
-const Gaps = [
+const Rules = [
   Readme,
   TypeDeclarations,
 ]
@@ -20,12 +20,12 @@ export function main() {
 
   const filepath = process.cwd()
 
-  const gaps = Gaps.map(Gap => new Gap(filepath))
-  checkAll(gaps, error => {
+  const rules = Rules.map(Rule => new Rule(filepath))
+  checkAll(rules, error => {
     if (error) throw error
 
     if (program.fix) {
-      fixAll(gaps, error => {
+      fixAll(rules, error => {
         if (error) throw error
 
         console.log('Done')

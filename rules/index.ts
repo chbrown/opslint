@@ -3,15 +3,15 @@ import {readFile} from 'fs'
 /**
 Failed checks are handled differently from errors.
 */
-export type GapCallback = (error: Error, messages?: string[]) => void
+export type RuleCallback = (error: Error, messages?: string[]) => void
 
-export abstract class Gap {
+export abstract class Rule {
   // abstract
   name: string
   description: string
   constructor(public filepath: string) { }
-  abstract check(callback: GapCallback): void
-  abstract fix(callback: GapCallback): void
+  abstract check(callback: RuleCallback): void
+  abstract fix(callback: RuleCallback): void
 }
 
 export function readOptionalFile(filepath: string,

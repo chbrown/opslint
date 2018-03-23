@@ -1,6 +1,6 @@
 import {join} from 'path'
 import {exists, existsSync, writeFile} from 'fs'
-import {Gap, GapCallback, readOptionalFile} from './index'
+import {Rule, RuleCallback, readOptionalFile} from './index'
 import * as rimraf from 'rimraf'
 
 const DefinitelyTyped_regExp = /DefinitelyTyped\/(.+\.d\.ts)/
@@ -31,10 +31,10 @@ function updateTSConfig(filepath: string,
   })
 }
 
-export default class TypeDeclarations extends Gap {
+export default class TypeDeclarations extends Rule {
   name = 'type_declarations'
   description = 'type_declarations does not exist'
-  check(callback: GapCallback) {
+  check(callback: RuleCallback) {
     const messages: string[] = []
     exists(join(this.filepath, 'type_declarations'), exists => {
       if (exists) {
@@ -47,7 +47,7 @@ export default class TypeDeclarations extends Gap {
   1. read index.d.ts
   2. replace all triple-slash DefinitelyTyped/ references
   */
-  fix(callback: GapCallback) {
+  fix(callback: RuleCallback) {
     const messages: string[] = []
     readOptionalFile(join(this.filepath, 'type_declarations', 'index.d.ts'), '', (error, data, missing) => {
       if (error) return callback(error)

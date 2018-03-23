@@ -1,14 +1,14 @@
 import * as async from 'async'
 import chalk from 'chalk'
 
-import {Gap} from './gaps/index'
+import {Rule} from './rules/index'
 
 // ✓ ✔ ✗ ✘ ⟁ ⚠
 
-export function checkAll(gaps: Gap[], callback: (error?: Error) => void) {
-  async.eachSeries(gaps, (gap, callback) => {
-    console.log(gap.name)
-    gap.check((error, messages) => {
+export function checkAll(rules: Rule[], callback: (error?: Error) => void) {
+  async.eachSeries(rules, (rule, callback) => {
+    console.log(rule.name)
+    rule.check((error, messages) => {
       if (error) return callback(error)
       if (messages.length > 0) {
         messages.forEach(message => {
@@ -16,17 +16,17 @@ export function checkAll(gaps: Gap[], callback: (error?: Error) => void) {
         })
       }
       else {
-        console.log(chalk.bold.green(`  ✓ ${gap.description}`))
+        console.log(chalk.bold.green(`  ✓ ${rule.description}`))
       }
       callback()
     })
   }, callback)
 }
 
-export function fixAll(gaps: Gap[], callback: (error?: Error) => void) {
-  async.eachSeries(gaps, (gap, callback) => {
-    console.log(gap.name)
-    gap.fix((error, messages) => {
+export function fixAll(rules: Rule[], callback: (error?: Error) => void) {
+  async.eachSeries(rules, (rule, callback) => {
+    console.log(rule.name)
+    rule.fix((error, messages) => {
       if (error) return callback(error)
       messages.forEach(message => {
         console.log(chalk.bold.yellow(`  ⚠ ${message}`))

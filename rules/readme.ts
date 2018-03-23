@@ -1,17 +1,17 @@
 import {join} from 'path'
 import {writeFile} from 'fs'
-import {Gap, GapCallback, readOptionalFile} from './index'
+import {Rule, RuleCallback, readOptionalFile} from './index'
 
 const licenseSectionRegExp = /\n#+\s*License/i
 const correctUrlRegExp = /chbrown\.github\.io\/licenses\/MIT/i
 
-export default class Readme extends Gap {
+export default class Readme extends Rule {
   name = 'README.md'
   description = 'README.md exists, contains License section with correct URL'
   get readme_filepath() {
     return join(this.filepath, 'README.md')
   }
-  check(callback: GapCallback) {
+  check(callback: RuleCallback) {
     const messages: string[] = []
     readOptionalFile(this.readme_filepath, '', (error, data, missing) => {
       if (error) return callback(error)
@@ -29,7 +29,7 @@ export default class Readme extends Gap {
       return callback(null, messages)
     })
   }
-  fix(callback: GapCallback) {
+  fix(callback: RuleCallback) {
     const messages: string[] = []
     readOptionalFile(this.readme_filepath, '', (error, fileData, missing) => {
       if (error) return callback(error)
