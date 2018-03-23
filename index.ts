@@ -1,37 +1,39 @@
-import * as async from 'async'
 import chalk from 'chalk'
 
 import {Rule} from './rules/index'
 
 // ✓ ✔ ✗ ✘ ⟁ ⚠
 
-export function checkAll(rules: Rule[], callback: (error?: Error) => void) {
-  async.eachSeries(rules, (rule, callback) => {
+export async function checkAll(rules: Rule[]) {
+  for (const rule of rules) {
     console.log(rule.name)
-    rule.check((error, messages) => {
-      if (error) return callback(error)
-      if (messages.length > 0) {
-        messages.forEach(message => {
-          console.log(chalk.bold.red(`  ✗ ${message}`))
-        })
+    const messages = await rule.check()
+
+    if (messages.length > 0) {
+      for (const message of messages) {
+        console.log(chalk.bold.red(`  ✗ ${message}`))
       }
-      else {
-        console.log(chalk.bold.green(`  ✓ ${rule.description}`))
-      }
-      callback()
-    })
-  }, callback)
+    }
+    else {
+      console.log(chalk.bold.green(`  ✓ ${rule.description}`))
+    }
+  }
 }
 
-export function fixAll(rules: Rule[], callback: (error?: Error) => void) {
-  async.eachSeries(rules, (rule, callback) => {
+export async function fixAll(rules: Rule[]) {
+  for (const rule of rules) {
     console.log(rule.name)
-    rule.fix((error, messages) => {
-      if (error) return callback(error)
-      messages.forEach(message => {
-        console.log(chalk.bold.yellow(`  ⚠ ${message}`))
-      })
-      callback()
-    })
-  }, callback)
+    const messages = await rule.fix()
+
+    for (const message of messages) {
+      console.log(chalk.bold.yellow(`  ⚠ ${message}`))
+    }
+  }
+}
+
+export async function doAll(rules, fix: boolean) {
+  await checkAll(rules)
+  if (fix) {
+    await fixAll(rules)
+  }
 }

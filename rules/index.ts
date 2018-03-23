@@ -1,36 +1,32 @@
+import {promisify} from 'util'
 import {readFile} from 'fs'
+
+const readFilePromise = promisify(readFile)
 
 /**
 Failed checks are handled differently from errors.
 */
-export type RuleCallback = (error: Error, messages?: string[]) => void
+export type RulePromise = Promise<string[]>
 
 export abstract class Rule {
   // abstract
   name: string
   description: string
   constructor(public filepath: string) { }
-  abstract check(callback: RuleCallback): void
-  abstract fix(callback: RuleCallback): void
+  abstract async check(): RulePromise
+  abstract async fix(): RulePromise
 }
 
-export function readOptionalFile(filepath: string,
-                                 defaultData: string,
-                                 callback: (error: Error, data?: string, missing?: boolean) => void) {
-  readFile(filepath, {encoding: 'utf8'}, (error, fileData) => {
-    let missing = false
-    let data = fileData
-    if (error) {
-      if (error.code === 'ENOENT') {
-        // swallow missing file error
-        missing = true
-        data = defaultData
-      }
-      else {
-        // treat all other errors idiomatically
-        return callback(error)
-      }
+export async function readOptionalFile(filepath: string, defaultData: string) {
+  return readFilePromise(filepath, {encoding: 'utf8'})
+  .then(fileData => {
+    return {missing: false, data: fileData}
+  }, (err: NodeJS.ErrnoException) => {
+    // swallow missing file error
+    if (err.code === 'ENOENT') {
+      return {missing: true, data: defaultData}
     }
-    callback(null, data, missing)
+    // treat all other errors idiomatically
+    throw err
   })
 }

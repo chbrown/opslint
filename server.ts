@@ -1,10 +1,14 @@
 #!/usr/bin/env node
 import * as program from 'commander'
 
-import {checkAll, fixAll} from '.'
+import {doAll} from '.'
 
 import Readme from './rules/readme'
 import TypeDeclarations from './rules/type-declarations'
+
+interface NPMPackage {
+  version?: string
+}
 
 const Rules = [
   Readme,
@@ -12,7 +16,7 @@ const Rules = [
 ]
 
 export function main() {
-  const {version} = require('./package')
+  const {version} = require('./package') as NPMPackage
   program
     .version(version, '-v, --version')
     .option('--fix', 'Apply fixes automatically')
@@ -21,16 +25,10 @@ export function main() {
   const filepath = process.cwd()
 
   const rules = Rules.map(Rule => new Rule(filepath))
-  checkAll(rules, error => {
-    if (error) throw error
-
-    if (program.fix) {
-      fixAll(rules, error => {
-        if (error) throw error
-
-        console.log('Done')
-      })
-    }
+  doAll(rules, program.fix).then(() => {
+    console.log('Done')
+  }, error => {
+    throw error
   })
 }
 

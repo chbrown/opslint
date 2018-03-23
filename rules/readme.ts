@@ -1,9 +1,19 @@
+import {promisify} from 'util'
 import {join} from 'path'
 import {writeFile} from 'fs'
-import {Rule, RuleCallback, readOptionalFile} from './index'
+import {Rule, readOptionalFile} from './index'
+
+const writeFilePromise = promisify(writeFile)
 
 const licenseSectionRegExp = /\n#+\s*License/i
 const correctUrlRegExp = /chbrown\.github\.io\/licenses\/MIT/i
+
+const licenseText = `
+
+## License
+
+Copyright Christopher Brown. [MIT Licensed](http://chbrown.github.io/licenses/MIT/)
+`
 
 export default class Readme extends Rule {
   name = 'README.md'
@@ -11,61 +21,49 @@ export default class Readme extends Rule {
   get readme_filepath() {
     return join(this.filepath, 'README.md')
   }
-  check(callback: RuleCallback) {
+  async check() {
     const messages: string[] = []
-    readOptionalFile(this.readme_filepath, '', (error, data, missing) => {
-      if (error) return callback(error)
-      if (missing) {
-        messages.push('README.md does not exist')
-      }
+    const {data, missing} = await readOptionalFile(this.readme_filepath, '')
+    if (missing) {
+      messages.push('README.md does not exist')
+    }
 
-      if (!licenseSectionRegExp.test(data)) {
-        messages.push('README.md does not contain License section')
-      }
-      if (!correctUrlRegExp.test(data)) {
-        messages.push('README.md License section does not contain correct URL')
-      }
-
-      return callback(null, messages)
-    })
+    if (!licenseSectionRegExp.test(data)) {
+      messages.push('README.md does not contain License section')
+    }
+    if (!correctUrlRegExp.test(data)) {
+      messages.push('README.md License section does not contain correct URL')
+    }
+    return messages
   }
-  fix(callback: RuleCallback) {
+  async fix() {
     const messages: string[] = []
-    readOptionalFile(this.readme_filepath, '', (error, fileData, missing) => {
-      if (error) return callback(error)
-      if (missing) {
-        messages.push('Creating README.md')
-      }
-      let data = fileData
+    const {data, missing} = await readOptionalFile(this.readme_filepath, '')
+    if (missing) {
+      messages.push('Creating README.md')
+    }
+    // let data = fileData
 
-      // stop if nothing needs changing
-      if (correctUrlRegExp.test(data) && licenseSectionRegExp.test(data)) {
-        messages.push('Nothing to fix')
-        return callback(null, messages)
-      }
+    // stop if nothing needs changing
+    if (correctUrlRegExp.test(data) && licenseSectionRegExp.test(data)) {
+      messages.push('Nothing to fix')
+      return messages
+    }
 
-      // look for [MIT License]() Markdown-syntax link
-      const link_match = data.match(/\[MIT Licensed\]\(([^)]+)\)/i)
-      if (link_match) {
-        data = data.replace(link_match[1], 'http://chbrown.github.io/licenses/MIT/')
-        messages.push('Replacing existing URL')
-      }
-      else {
-        data += [
-          '',
-          '',
-          '## License',
-          '',
-          'Copyright Christopher Brown. [MIT Licensed](http://chbrown.github.io/licenses/MIT/)',
-          '',
-        ].join('\n')
-        messages.push('Adding new License section with correct URL')
-      }
+    let fixed_data = data
+    // look for [MIT License]() Markdown-syntax link
+    const link_match = fixed_data.match(/\[MIT Licensed\]\(([^)]+)\)/i)
+    if (link_match) {
+      fixed_data = fixed_data.replace(link_match[1], 'http://chbrown.github.io/licenses/MIT/')
+      messages.push('Replacing existing URL')
+    }
+    else {
+      fixed_data += licenseText
+      messages.push('Adding new License section with correct URL')
+    }
 
-      // creates file if needed
-      writeFile(this.readme_filepath, data, {encoding: 'utf8'}, error => {
-        callback(error, messages)
-      })
-    })
+    // creates file if needed
+    await writeFilePromise(this.readme_filepath, data, {encoding: 'utf8'})
+    return messages
   }
 }
