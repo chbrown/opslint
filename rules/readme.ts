@@ -1,9 +1,6 @@
-import {promisify} from 'util'
 import {join} from 'path'
-import {writeFile} from 'fs'
-import {Rule, readOptionalFile} from './index'
-
-const writeFilePromise = promisify(writeFile)
+import {Rule} from './index'
+import {writeFile, readOptionalFile} from '../util'
 
 const licenseSectionRegExp = /\n#+\s*License/i
 const correctUrlRegExp = /chbrown\.github\.io\/licenses\/MIT/i
@@ -63,7 +60,7 @@ export default class Readme extends Rule {
     }
 
     // creates file if needed
-    await writeFilePromise(this.readme_filepath, data, {encoding: 'utf8'})
+    await writeFile(this.readme_filepath, data, {encoding: 'utf8'})
     return messages
   }
 }

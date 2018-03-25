@@ -1,11 +1,7 @@
-import {promisify} from 'util'
 import {join} from 'path'
-import {existsSync, writeFile} from 'fs'
-import {Rule, readOptionalFile} from './index'
-import * as rimraf from 'rimraf'
+import {Rule} from './index'
+import {writeFile, readOptionalFile, rmAll, exists} from '../util'
 
-const writeFilePromise = promisify(writeFile)
-const rimrafPromise = promisify(rimraf)
 
 const DefinitelyTyped_regExp = /DefinitelyTyped\/(.+\.d\.ts)/
 const node_modules_regExp = /node_modules\/(.+\.d\.ts)/
@@ -33,7 +29,7 @@ async function updateTSConfig(filepath: string,
   const updatedTSConfig = {...originalTSConfig, files}
   const updatedData = JSON.stringify(updatedTSConfig, null, '  ')
 
-  await writeFilePromise(filepath, `${updatedData}\n`, {encoding: 'utf8'})
+  await writeFile(filepath, `${updatedData}\n`, {encoding: 'utf8'})
 
   messages.push('wrote updates to tsconfig.json')
 
@@ -45,8 +41,8 @@ export default class TypeDeclarations extends Rule {
   description = 'type_declarations does not exist'
   async check() {
     const messages: string[] = []
-    const exists = existsSync(join(this.filepath, 'type_declarations'))
-    if (exists) {
+    const directoryExists = await exists(join(this.filepath, 'type_declarations'))
+    if (directoryExists) {
       messages.push('type_declarations exists')
     }
 
@@ -92,8 +88,8 @@ export default class TypeDeclarations extends Rule {
     const shims_filepath = join(this.filepath, 'shims.d.ts')
     if (other_lines.length > 0) {
       additional_files.push('shims.d.ts')
-      const shims_exist = existsSync(shims_filepath)
-      if (shims_exist) {
+      const shimsExist = await exists(shims_filepath)
+      if (shimsExist) {
         throw new Error('shims.d.ts already exists')
       }
     }
@@ -102,7 +98,7 @@ export default class TypeDeclarations extends Rule {
     messages.push(...ts_messages)
 
     // delete entire type_declarations directory
-    await rimrafPromise(join(this.filepath, 'type_declarations'))
+    await rmAll(join(this.filepath, 'type_declarations'))
 
     messages.push('deleted type_declarations/ directory')
 
@@ -113,7 +109,7 @@ export default class TypeDeclarations extends Rule {
 
     messages.push('writing remainder of type_declarations/index.d.ts to shims.d.ts')
 
-    await writeFilePromise(shims_filepath, other_lines.join('\n'), {encoding: 'utf8'})
+    await writeFile(shims_filepath, other_lines.join('\n'), {encoding: 'utf8'})
 
     return messages
   }
