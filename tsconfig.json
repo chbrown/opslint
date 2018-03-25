@@ -4,8 +4,8 @@
     "target": "ES2015"
   },
   "files": [
-    "rules/index.ts",
     "rules/readme.ts",
+    "rules/rule.ts",
     "rules/type-declarations.ts",
     "index.ts",
     "server.ts",

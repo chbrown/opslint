@@ -1,5 +1,5 @@
 import {join} from 'path'
-import {Rule} from './index'
+import Rule from './rule'
 import {writeFile, readOptionalFile, rmAll, exists} from '../util'
 
 

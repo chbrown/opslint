@@ -1,6 +1,6 @@
 import chalk from 'chalk'
 
-import {Rule} from './rules/index'
+import Rule from './rules/rule'
 
 // ✓ ✔ ✗ ✘ ⟁ ⚠
 

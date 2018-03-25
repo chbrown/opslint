@@ -1,5 +1,5 @@
 import {join} from 'path'
-import {Rule} from './index'
+import Rule from './rule'
 import {writeFile, readOptionalFile} from '../util'
 
 const licenseSectionRegExp = /\n#+\s*License/i
