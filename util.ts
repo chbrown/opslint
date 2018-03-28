@@ -24,3 +24,7 @@ export async function readOptionalFile(path: string, defaultData: string) {
     throw err
   })
 }
+
+export function log(message?: any, ...optionalParams: any[]) {
+  return console.error(message, ...optionalParams)
+}
