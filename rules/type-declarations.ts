@@ -102,14 +102,11 @@ export default class TypeDeclarations extends Rule {
 
     messages.push('deleted type_declarations/ directory')
 
-    if (other_lines.length === 0) {
-      // short circuit if there is no need to write shims.d.ts
-      return messages
+    if (other_lines.length) {
+      // write anything else to shims.d.ts
+      messages.push('writing remainder of type_declarations/index.d.ts to shims.d.ts')
+      await writeFile(shims_filepath, other_lines.join('\n'), {encoding: 'utf8'})
     }
-
-    messages.push('writing remainder of type_declarations/index.d.ts to shims.d.ts')
-
-    await writeFile(shims_filepath, other_lines.join('\n'), {encoding: 'utf8'})
 
     return messages
   }
