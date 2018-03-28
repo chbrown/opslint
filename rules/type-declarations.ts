@@ -1,6 +1,6 @@
 import {join} from 'path'
 import Rule from './rule'
-import {writeFile, readOptionalFile, rmAll, exists} from '../util'
+import {writeFile, readOptionalFile, rmAll, exists, log} from '../util'
 
 
 const DefinitelyTyped_regExp = /DefinitelyTyped\/(.+\.d\.ts)/
@@ -15,14 +15,13 @@ interface TSConfig {
 
 async function updateTSConfig(filepath: string,
                               additionalFiles: string[]) {
-  const messages: string[] = []
   const {data, missing} = await readOptionalFile(filepath, '{}')
 
   if (missing) {
-    messages.push(`creating ${filepath}`)
+    log(`creating ${filepath}`)
   }
 
-  messages.push(`adding ${additionalFiles.length} new files to tsconfig`)
+  log(`adding ${additionalFiles.length} new files to tsconfig`)
 
   const originalTSConfig = JSON.parse(data) as TSConfig
   const files = [...additionalFiles, ...(originalTSConfig.files || [])]
@@ -31,32 +30,27 @@ async function updateTSConfig(filepath: string,
 
   await writeFile(filepath, `${updatedData}\n`, {encoding: 'utf8'})
 
-  messages.push('wrote updates to tsconfig.json')
-
-  return messages
+  log('wrote updates to tsconfig.json')
 }
 
 export default class TypeDeclarations extends Rule {
   name = 'type_declarations'
   description = 'type_declarations does not exist'
   async check() {
-    const messages: string[] = []
     const directoryExists = await exists(join(this.filepath, 'type_declarations'))
     if (directoryExists) {
-      messages.push('type_declarations exists')
+      throw new Error('type_declarations exists')
     }
-
-    return messages
   }
   /**
   1. read index.d.ts
   2. replace all triple-slash DefinitelyTyped/ references
   */
   async fix() {
-    const messages: string[] = []
-    const {data, missing} = await readOptionalFile(join(this.filepath, 'type_declarations', 'index.d.ts'), '')
+    const index_d_ts_path = join(this.filepath, 'type_declarations', 'index.d.ts')
+    const {data, missing} = await readOptionalFile(index_d_ts_path, '')
     if (missing) {
-      messages.push('type_declarations/index.d.ts does not exist')
+      log('type_declarations/index.d.ts does not exist')
     }
 
     const lines = data.split('\n')
@@ -94,20 +88,19 @@ export default class TypeDeclarations extends Rule {
       }
     }
 
-    const ts_messages = await updateTSConfig(join(this.filepath, 'tsconfig.json'), additional_files)
-    messages.push(...ts_messages)
+    await updateTSConfig(join(this.filepath, 'tsconfig.json'), additional_files)
 
     // delete entire type_declarations directory
     await rmAll(join(this.filepath, 'type_declarations'))
 
-    messages.push('deleted type_declarations/ directory')
+    log('deleted type_declarations/ directory')
 
     if (other_lines.length) {
       // write anything else to shims.d.ts
-      messages.push('writing remainder of type_declarations/index.d.ts to shims.d.ts')
+      log('writing remainder of type_declarations/index.d.ts to shims.d.ts')
       await writeFile(shims_filepath, other_lines.join('\n'), {encoding: 'utf8'})
     }
 
-    return messages
+    return true
   }
 }

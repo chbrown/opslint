@@ -7,26 +7,22 @@ import Rule from './rules/rule'
 export async function checkAll(rules: Rule[]) {
   for (const rule of rules) {
     console.log(rule.name)
-    const messages = await rule.check()
-
-    if (messages.length > 0) {
-      for (const message of messages) {
-        console.log(chalk.bold.red(`  ✗ ${message}`))
-      }
-    }
-    else {
-      console.log(chalk.bold.green(`  ✓ ${rule.description}`))
-    }
+    const message = await rule.check().then(() => {
+      return chalk.bold.green(`  ✓ ${rule.description}`)
+    }, reason => {
+      return chalk.bold.red(`  ✗ ${reason instanceof Error ? reason.message : reason}`)
+    })
+    console.log(message)
   }
 }
 
 export async function fixAll(rules: Rule[]) {
   for (const rule of rules) {
     console.log(rule.name)
-    const messages = await rule.fix()
+    const changed = await rule.fix()
 
-    for (const message of messages) {
-      console.log(chalk.bold.yellow(`  ⚠ ${message}`))
+    if (changed) {
+      console.log(chalk.bold.yellow(`  ⚠ ${rule.name} changed`))
     }
   }
 }
